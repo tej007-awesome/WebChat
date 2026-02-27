@@ -104,7 +104,7 @@ tail -f logs/webchat.error.log
 
 ## Demo
 
-![WebChat demo showing successful ingestion and cited answers](web_demo.png)
+![WebChat demo showing successful ingestion and cited answers](docs/images/web_demo.png)
 
 ## Docker
 
