@@ -102,6 +102,10 @@ tail -f logs/webchat.log
 tail -f logs/webchat.error.log
 ```
 
+## Demo
+
+![WebChat demo showing successful ingestion and cited answers](web_demo.png)
+
 ## Docker
 
 ### Run (recommended)
