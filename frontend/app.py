@@ -1,7 +1,20 @@
+import logging
 import os
+import sys
+from pathlib import Path
 
 import httpx
 import streamlit as st
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from logger import setup_logging
+
+setup_logging("webchat")
+
+logger = logging.getLogger("webchat.frontend")
 
 API_BASE = os.getenv("API_BASE", "http://localhost:8000")
 
@@ -24,15 +37,19 @@ with st.sidebar:
                 if resp.status_code == 200:
                     data = resp.json()
                     st.success(f"Ingested **{data['num_chunks']}** chunks!")
+                    logger.info("[INGEST] url=%r chunks=%s", url, data.get("num_chunks"))
                     st.session_state["active_url"] = url
                     st.session_state["messages"] = []
                 else:
                     detail = resp.json().get("detail", resp.text)
                     st.error(f"Ingestion failed: {detail}")
+                    logger.error("[INGEST] url=%r status=%s detail=%r", url, resp.status_code, detail)
             except httpx.TimeoutException:
                 st.error("Request timed out. The page may be too large.")
+                logger.error("[INGEST] url=%r timeout", url)
             except httpx.ConnectError:
                 st.error("Cannot connect to backend. Is it running on port 8000?")
+                logger.error("[INGEST] url=%r connect_error api_base=%r", url, API_BASE)
 
     if active := st.session_state.get("active_url"):
         st.divider()
@@ -71,12 +88,21 @@ else:
                     )
                     if resp.status_code == 200:
                         answer = resp.json()["response"]
+                        logger.info("[CHAT] url=%r ok", st.session_state.get("active_url"))
                     else:
                         answer = f"Error: {resp.json().get('detail', resp.text)}"
+                        logger.error(
+                            "[CHAT] url=%r status=%s detail=%r",
+                            st.session_state.get("active_url"),
+                            resp.status_code,
+                            resp.json().get("detail", resp.text),
+                        )
                 except httpx.TimeoutException:
                     answer = "Request timed out. Please try again."
+                    logger.error("[CHAT] url=%r timeout", st.session_state.get("active_url"))
                 except httpx.ConnectError:
                     answer = "Cannot connect to backend. Is it running on port 8000?"
+                    logger.error("[CHAT] url=%r connect_error api_base=%r", st.session_state.get("active_url"), API_BASE)
 
             st.markdown(answer)
             st.session_state["messages"].append({"role": "assistant", "content": answer})

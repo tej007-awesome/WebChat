@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -8,9 +8,10 @@ from backend import agent as agent_module
 from backend.config import normalize_url
 from backend.ingestion import ingest_text
 from backend.scraper import scrape_url
+from logger import setup_logging
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("webchat")
+setup_logging("webchat")
+logger = logging.getLogger("webchat.api")
 
 app = FastAPI(title="WebChat API")
 
@@ -37,6 +38,28 @@ class ChatRequest(BaseModel):
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.middleware("http")
+async def request_logging(request: Request, call_next):
+    import time
+
+    start = time.perf_counter()
+    try:
+        response = await call_next(request)
+    except Exception:
+        logger.exception("[REQUEST] %s %s -> exception", request.method, request.url.path)
+        raise
+
+    duration_ms = round((time.perf_counter() - start) * 1000, 2)
+    logger.info(
+        "[REQUEST] %s %s -> %s (%.2f ms)",
+        request.method,
+        request.url.path,
+        getattr(response, "status_code", "?"),
+        duration_ms,
+    )
+    return response
 
 
 @app.post("/ingest")

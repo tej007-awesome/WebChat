@@ -11,7 +11,7 @@ __pycache__/
 .DS_Store
 .env
 *.log
+logs/
 uv.lock.md
 dist/
 build/
-

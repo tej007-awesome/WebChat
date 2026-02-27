@@ -77,6 +77,31 @@ make frontend
 
 Open http://localhost:8501 in your browser.
 
+## Logging
+
+The app uses a shared logger configuration for backend and frontend.
+
+Configure in `.env`:
+```bash
+LOG_DIR=logs
+LOG_LEVEL=INFO
+LOG_TO_CONSOLE=1
+```
+
+- `LOG_DIR`: directory for log files
+- `LOG_LEVEL`: `DEBUG`, `INFO`, `WARNING`, `ERROR`
+- `LOG_TO_CONSOLE`: `1` to also print logs to terminal, `0` for file-only logs
+
+Log files:
+- `logs/webchat.log` (all logs)
+- `logs/webchat.error.log` (errors only)
+
+View logs:
+```bash
+tail -f logs/webchat.log
+tail -f logs/webchat.error.log
+```
+
 ## Docker
 
 ### Run (recommended)
@@ -93,6 +118,15 @@ Stop:
 ```bash
 docker compose down
 ```
+
+### Logs
+
+- By default, Docker mounts `./logs` into containers so logs persist on your host.
+- For Docker console logs, run:
+  ```bash
+  docker compose logs -f backend
+  docker compose logs -f frontend
+  ```
 
 ### Using local Qdrant (optional)
 
