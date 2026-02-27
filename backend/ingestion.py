@@ -26,9 +26,12 @@ def ingest_text(url: str, text: str) -> dict:
     )
 
     # Set up Qdrant vector store
+    qdrant_url = os.getenv("QDRANT_URL", "http://localhost:6333")
+    qdrant_api_key = os.getenv("QDRANT_API_KEY") or None
+
     client = QdrantClient(
-        url=os.environ["QDRANT_URL"],
-        api_key=os.environ["QDRANT_API_KEY"],
+        url=qdrant_url,
+        api_key=qdrant_api_key,
     )
     vector_store = QdrantVectorStore(
         collection_name=collection_name,

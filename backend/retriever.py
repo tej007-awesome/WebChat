@@ -18,10 +18,10 @@ def retrieve_chunks(url: str, query: str) -> list[dict]:
 
     Settings.embed_model = HuggingFaceEmbedding(model_name=EMBEDDING_MODEL)
 
-    client = QdrantClient(
-        url=os.environ["QDRANT_URL"],
-        api_key=os.environ["QDRANT_API_KEY"],
-    )
+    qdrant_url = os.getenv("QDRANT_URL", "http://localhost:6333")
+    qdrant_api_key = os.getenv("QDRANT_API_KEY") or None
+
+    client = QdrantClient(url=qdrant_url, api_key=qdrant_api_key)
     vector_store = QdrantVectorStore(
         collection_name=collection_name,
         client=client,

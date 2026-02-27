@@ -53,15 +53,15 @@ git clone <repo-url> && cd webchat
 make setup
 
 # Configure environment variables
-cp .env .env  # Edit with your actual keys
+cp .env.example .env  # Edit with your actual keys
 ```
 
 Edit `.env` with your credentials:
 ```
 OPENROUTER_API_KEY=your-openrouter-key
-OPENAI_API_KEY=sk-...
 QDRANT_URL=https://your-cluster.cloud.qdrant.io:6333
 QDRANT_API_KEY=your-api-key
+API_BASE=http://localhost:8000
 ```
 
 ### Run
@@ -77,6 +77,16 @@ make frontend
 ```
 
 Open http://localhost:8501 in your browser.
+
+## Docker
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+- Frontend: http://localhost:8501
+- Backend health: http://localhost:8000/health
 
 ## Usage
 

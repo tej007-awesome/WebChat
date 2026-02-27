@@ -1,7 +1,9 @@
+import os
+
 import httpx
 import streamlit as st
 
-API_BASE = "http://localhost:8000"
+API_BASE = os.getenv("API_BASE", "http://localhost:8000")
 
 st.set_page_config(page_title="WebChat", page_icon="🌐", layout="wide")
 st.title("WebChat — Chat with Any Website")
